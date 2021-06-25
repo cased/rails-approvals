@@ -1,4 +1,4 @@
-# desc "Explaining what the task does"
-# task :rails_approvals do
-#   # Task goes here
-# end
+desc 'Add an approval processes to a Rake task'
+task :require_approval do
+  Rails::Approvals.start!
+end

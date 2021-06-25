@@ -1,7 +1,6 @@
 module Rails
   module Approvals
     class Request < ApplicationRecord
-
       enum state: {
         requested: 102,
         approved: 202,
@@ -17,46 +16,22 @@ module Rails
       before_validation :prompt_for_reason
       after_commit :publish_message_to_slack, on: %i[create update]
 
-      def self.request
-        request = create!(
+      def self.request!
+        create!(
           requester: ENV['USER'],
           command: [$PROGRAM_NAME, *ARGV].join(' '),
         )
-
-        poll = request.requested?
-        canceled = false
-
-        Signal.trap('SIGINT') do
-          # Stop the polling
-          poll = false
-
-          # Canceling the request inside of a trap will fail if it results in
-          # any log output. Cancel the request outside of the scope of the trap
-          # and everything will work as expected.
-          canceled = true
-        end
-
-        while poll
-          if request.expired?
-            request.timed_out!
-            break
-          end
-
-          request.reload
-          poll = request.requested?
-
-          sleep 0.1
-        end
-
-        if canceled
-          request.canceled!
-        end
-
-        request
       end
 
       def expired?
         return false unless requested?
+
+        timeout_duration = Rails.application.config.rails.approvals.timeout_duration
+        return false if !timeout_duration
+
+        unless timeout_duration.is_a?(Numeric) || timeout_duration.is_a?(ActiveSupport::Duration)
+          raise ArgumentError, "expected ActiveSupport::Duration or Numeric value"
+        end
 
         expires_at = created_at + Rails.application.config.rails.approvals.timeout_duration
         expires_at <= Time.zone.now
@@ -65,7 +40,7 @@ module Rails
       private
 
       def prompt_for_requester
-        return if requester?
+        return if requester? && !Rails.application.config.rails.requester.prompt
 
         prompt = TTY::Prompt.new
         response = prompt.multiline("Who are you?", help: '(Press Ctrl+D or Ctrl+Z to submit)')
@@ -74,10 +49,11 @@ module Rails
       end
 
       def prompt_for_reason
+        # We already have a reason, prompting for one is unnecessary.
         return if reason?
+
         reason_required = ::Rails.application.config.rails.approvals.reasons.required
         reason_prompt = ::Rails.application.config.rails.approvals.reasons.prompt
-
         return if !reason_required && !reason_prompt
 
         prompt = TTY::Prompt.new
@@ -87,6 +63,8 @@ module Rails
       end
 
       def publish_message_to_slack
+        # The initial request has already been sent to Slack, we now need to
+        # update it as the request state has changed.
         if slack_message_ts?
           Rails::Approvals.slack.chat_update(
             channel: slack_channel_id,
