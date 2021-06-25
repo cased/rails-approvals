@@ -135,8 +135,17 @@ When an approval response is ✅ _approved_, the console session continues as no
 
 ## Setup Slack Application
 
-- `groups:read`
-- If the channel is private, you must invite the bot user to the channel first.
+1. Create a [new Slack application](https://api.slack.com/apps?new_app=1) for your desired Slack workspace.
+1. Next, under **Features**, select **OAuth & Permissions**.
+1. Add the `chat:write` scope under **Bot Token Scopes**. This is the only permission you need.
+1. Now that you've added the required permission for Rails::Approvals to work, you must install the new application in your Slack workspace.
+1. Under **Settings**, select **Install App**.
+1. Install your Slack application to your workspace by following the prompt after clicking **Install to Workspace**.
+1. Copy the **Bot User OAuth Token** and configure a `RAILS_APPROVALS_SLACK_TOKEN` environment variable for your application.
+1. Next, under **Features**, select **Interactivity & Shortcuts**.
+1. Enable **Interactivity** and provide the **Request URL** per the [webhook URL instructions above](#mounting-the-railsapprovals-engine).
+1. Next, under **Settings**, select **Basic Information**.
+1. Copy the **Signing Secret** under **App Credentials** and configure your `RAILS_APPROVALS_SLACK_SIGNING_SECRET` environment variable.
 
 ## Contributing
 
