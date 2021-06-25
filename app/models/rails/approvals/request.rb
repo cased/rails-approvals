@@ -1,7 +1,6 @@
 module Rails
   module Approvals
     class Request < ApplicationRecord
-      after_create_commit :publish_message_to_slack
 
       enum state: {
         requested: 102,
@@ -11,8 +10,12 @@ module Rails
         canceled: 410,
       }
 
-      before_validation :prompt_for_reason
+      validates :requester, presence: true
       validates :reason, presence: ::Rails.application.config.rails.approvals.reasons.required
+
+      before_validation :prompt_for_requester
+      before_validation :prompt_for_reason
+      after_commit :publish_message_to_slack, on: %i[create update]
 
       def self.request
         request = create!(
@@ -61,6 +64,15 @@ module Rails
 
       private
 
+      def prompt_for_requester
+        return if requester?
+
+        prompt = TTY::Prompt.new
+        response = prompt.multiline("Who are you?", help: '(Press Ctrl+D or Ctrl+Z to submit)')
+
+        self.requester = response.join("\n")
+      end
+
       def prompt_for_reason
         return if reason?
         reason_required = ::Rails.application.config.rails.approvals.reasons.required
@@ -69,83 +81,28 @@ module Rails
         return if !reason_required && !reason_prompt
 
         prompt = TTY::Prompt.new
-        reason = prompt.multiline("Please enter a reason for running #{command}:", help: '(Press Ctrl+D or Ctrl+Z to submit)')
+        response = prompt.multiline("Please enter a reason for running #{command}:", help: '(Press Ctrl+D or Ctrl+Z to submit)')
 
-        self.reason = reason.join("\n")
+        self.reason = response.join("\n")
       end
 
       def publish_message_to_slack
         if slack_message_ts?
           Rails::Approvals.slack.chat_update(
-            channel: Rails.application.config.rails.approvals.slack.channel,
+            channel: slack_channel_id,
             ts: slack_message_ts,
-            blocks: [],
+            blocks: SlackMessage.new(self).as_json,
           )
         else
           message = Rails::Approvals.slack.chat_postMessage(
             channel: Rails.application.config.rails.approvals.slack.channel,
-            blocks: [
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "You have a new request:\n*<fakeLink.toEmployeeProfile.com|Fred Enriquez - New device request>*"
-                  }
-                },
-                {
-                  "type": "section",
-                  "fields": [
-                    {
-                      "type": "mrkdwn",
-                      "text": "*Type:*\nComputer (laptop)"
-                    },
-                    {
-                      "type": "mrkdwn",
-                      "text": "*When:*\nSubmitted Aut 10"
-                    },
-                    {
-                      "type": "mrkdwn",
-                      "text": "*Last Update:*\nMar 10, 2015 (3 years, 5 months)"
-                    },
-                    {
-                      "type": "mrkdwn",
-                      "text": "*Reason:*\nAll vowel keys aren't working."
-                    },
-                    {
-                      "type": "mrkdwn",
-                      "text": "*Specs:*\n\"Cheetah Pro 15\" - Fast, really fast\""
-                    }
-                  ]
-                },
-                {
-                  "type": "actions",
-                  "elements": [
-                    {
-                      "type": "button",
-                      "text": {
-                        "type": "plain_text",
-                        "emoji": true,
-                        "text": "Approve"
-                      },
-                      "style": "primary",
-                      "value": "click_me_123"
-                    },
-                    {
-                      "type": "button",
-                      "text": {
-                        "type": "plain_text",
-                        "emoji": true,
-                        "text": "Deny"
-                      },
-                      "style": "danger",
-                      "value": "click_me_123"
-                    }
-                  ]
-                }
-              ]
+            blocks: SlackMessage.new(self).as_json,
           )
 
-          update(slack_message_ts: message.ts)
+          update!(
+            slack_message_ts: message.ts,
+            slack_channel_id: message.channel,
+          )
         end
       end
     end

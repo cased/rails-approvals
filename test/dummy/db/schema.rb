@@ -19,6 +19,7 @@ ActiveRecord::Schema.define(version: 2021_06_24_220156) do
     t.string "requester", null: false
     t.string "responder"
     t.datetime "responded_at", precision: 6
+    t.string "slack_channel_id"
     t.string "slack_message_ts"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false

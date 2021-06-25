@@ -12,6 +12,7 @@ class CreateRailsApprovalsRequests < ActiveRecord::Migration[6.1]
 
       # The timestamp necessary for rails-approvals to update the request
       # message.
+      t.string :slack_channel_id, null: true
       t.string :slack_message_ts, null: true
 
       t.timestamps null: false, precision: 6
