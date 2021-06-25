@@ -121,7 +121,6 @@ Rails::Approvals works by adding a blocking approval request before a Rails cons
 module Rails
   module Approvals
     class Railtie < ::Rails::Railtie
-      # :nocov:
       console do
         Rails::Approvals.start!
       end
