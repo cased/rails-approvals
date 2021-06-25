@@ -79,7 +79,7 @@ There are [additional settings](https://github.com/cased/rails-approvals/blob/ma
 ### Mounting the Rails::Approvals engine
 
 When you respond to approval requests within Slack, Slack will deliver a webhook
-message to your configured application to permit or deny access accordingly.
+message to your configured application to permit or deny access accordingly. Rails::Approvals includes a built in controller to verify the message from Slack using the required signing secret, lookup the approval request, and handle the approved/denied response.
 
 You will want to mount the `Rails::Approvals::Engine` within your `config/routes.rb` file:
 
@@ -91,28 +91,27 @@ Rails.application.routes.draw do
 end
 ```
 
-Now you must update the webhook URL within the **Interactivity & Shortcuts** section of your Slack application settings. For the interactivity request URL enter:
+For Slack to know where to send approval request responses you must provide a webhook URL. Using the URL below, replace `example.com` with your application's domain and enter it within the **Interactivity & Shortcuts** section of your Slack application settings:
 
 ```
 https://example.com/rails/approvals/slack/webhook
 ```
 
-Replace `example.com` with your application's domain.
-
 ### Run the database migration
 
-Rails::Approvals requires a database migration to be performed to keep track of
-all pending approvals. You are welcome to check out the [migration](https://github.com/cased/rails-approvals/blob/main/db/migrate/20210624220156_create_rails_approvals_requests.rb) before running
-it.
+Rails::Approvals uses an ActiveRecord model to keep track of all pending approval requests, who requested them, the reason provided and more. Install and run the required database migration below:
 
 ```
 bin/rails railsapprovals:install:migrations
 bin/rails db:migrate
 ```
 
+You are welcome to check out the [migration](https://github.com/cased/rails-approvals/blob/main/db/migrate/20210624220156_create_rails_approvals_requests.rb) before running
+it.
+
 ### Deploy
 
-Now that you've installed `rails-approvals` setup your Slack application & installed it to your workspace, you're ready to go!
+Now that you've installed `rails-approvals`, setup your Slack application & installed it to your workspace, you're ready to go!
 
 ## How does Rails::Approvals work?
 
