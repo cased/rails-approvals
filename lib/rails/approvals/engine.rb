@@ -3,6 +3,8 @@ module Rails
     class Engine < ::Rails::Engine
       isolate_namespace Rails::Approvals
 
+      engine_name 'railsapprovals'
+
       config.rails = ActiveSupport::OrderedOptions.new
       config.rails.approvals = ActiveSupport::OrderedOptions.new
       config.rails.approvals.enabled = ::Rails.env.production?
