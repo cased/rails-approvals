@@ -4,7 +4,9 @@ Add approval processes for Rails console access, running database migrations, an
 
 ## Installation
 
-Rails::Approvals requires a Slack application installed in your Slack workspace. This allows Rails::Approvals to post approval requests to your configured Slack application, and other workspace users to respond to approval requests.
+Rails::Approvals requires a Slack application installed in your Slack workspace. The Slack application gives Rails::Approvals the ability to post approval requests to your configured Slack channel and other workspace users can respond to approval requests.
+
+This guide will walk you through the process of installing the gem, configuring Slack, and `rails-approvals` to meet your needs.
 
 ### Install the rails-approvals gem
 
@@ -28,13 +30,13 @@ $ bundle add rails-approvals
 
 ### Create Slack application
 
-Now that you have the gem installed, it's time to create the Rails::Approvals Slack application for your Slack workspace. To create a Slack application you must be a Slack workspace administrator.
+Now that you have the gem installed, it's time to create the Rails Approvals Slack application for your Slack workspace. To create a Slack application you must be a Slack workspace administrator.
 
-Using the link below a new Slack application will be prefilled with all settings and scopes required for Rails::Approvals to work. Slack will prompt you to verify the permissions that will be granted before the Slack application is created.
+Using the link below a new Slack application will be prefilled with all settings and scopes required for Rails::Approvals to work. Slack will prompt you to verify the permissions that will be granted before you create the Slack application.
 
-[Create Slack Application](https://api.slack.com/apps?new_app=1&manifest_json=%7B%0A%20%20%22_metadata%22%3A%20%7B%0A%20%20%20%20%22major_version%22%3A%201%2C%0A%20%20%20%20%22minor_version%22%3A%201%0A%20%20%7D%2C%0A%20%20%22display_information%22%3A%20%7B%0A%20%20%20%20%22name%22%3A%20%22Rails%20Approvals%22%0A%20%20%7D%2C%0A%20%20%22features%22%3A%20%7B%0A%20%20%20%20%22app_home%22%3A%20%7B%0A%20%20%20%20%20%20%22home_tab_enabled%22%3A%20false%2C%0A%20%20%20%20%20%20%22messages_tab_enabled%22%3A%20true%2C%0A%20%20%20%20%20%20%22messages_tab_read_only_enabled%22%3A%20true%0A%20%20%20%20%7D%2C%0A%20%20%20%20%22bot_user%22%3A%20%7B%0A%20%20%20%20%20%20%22display_name%22%3A%20%22Rails%20Approvals%22%2C%0A%20%20%20%20%20%20%22always_online%22%3A%20false%0A%20%20%20%20%7D%0A%20%20%7D%2C%0A%20%20%22oauth_config%22%3A%20%7B%0A%20%20%20%20%22scopes%22%3A%20%7B%0A%20%20%20%20%20%20%22bot%22%3A%20%5B%0A%20%20%20%20%20%20%20%20%22chat%3Awrite%22%0A%20%20%20%20%20%20%5D%0A%20%20%20%20%7D%0A%20%20%7D%2C%0A%20%20%22settings%22%3A%20%7B%0A%20%20%20%20%22interactivity%22%3A%20%7B%0A%20%20%20%20%20%20%22is_enabled%22%3A%20true%2C%0A%20%20%20%20%20%20%22request_url%22%3A%20%22https%3A%2F%2Fwebsite.com%2Frails%2Fapprovals%2Fslack%2Fwebhook%22%0A%20%20%20%20%7D%2C%0A%20%20%20%20%22org_deploy_enabled%22%3A%20false%2C%0A%20%20%20%20%22socket_mode_enabled%22%3A%20false%0A%20%20%7D%0A%7D%0A)
+<a href="https://api.slack.com/apps?new_app=1&manifest_json=%7B%0A%20%20%22_metadata%22%3A%20%7B%0A%20%20%20%20%22major_version%22%3A%201%2C%0A%20%20%20%20%22minor_version%22%3A%201%0A%20%20%7D%2C%0A%20%20%22display_information%22%3A%20%7B%0A%20%20%20%20%22name%22%3A%20%22Rails%20Approvals%22%0A%20%20%7D%2C%0A%20%20%22features%22%3A%20%7B%0A%20%20%20%20%22app_home%22%3A%20%7B%0A%20%20%20%20%20%20%22home_tab_enabled%22%3A%20false%2C%0A%20%20%20%20%20%20%22messages_tab_enabled%22%3A%20true%2C%0A%20%20%20%20%20%20%22messages_tab_read_only_enabled%22%3A%20true%0A%20%20%20%20%7D%2C%0A%20%20%20%20%22bot_user%22%3A%20%7B%0A%20%20%20%20%20%20%22display_name%22%3A%20%22Rails%20Approvals%22%2C%0A%20%20%20%20%20%20%22always_online%22%3A%20false%0A%20%20%20%20%7D%0A%20%20%7D%2C%0A%20%20%22oauth_config%22%3A%20%7B%0A%20%20%20%20%22scopes%22%3A%20%7B%0A%20%20%20%20%20%20%22bot%22%3A%20%5B%0A%20%20%20%20%20%20%20%20%22chat%3Awrite%22%0A%20%20%20%20%20%20%5D%0A%20%20%20%20%7D%0A%20%20%7D%2C%0A%20%20%22settings%22%3A%20%7B%0A%20%20%20%20%22interactivity%22%3A%20%7B%0A%20%20%20%20%20%20%22is_enabled%22%3A%20true%2C%0A%20%20%20%20%20%20%22request_url%22%3A%20%22https%3A%2F%2Fwebsite.com%2Frails%2Fapprovals%2Fslack%2Fwebhook%22%0A%20%20%20%20%7D%2C%0A%20%20%20%20%22org_deploy_enabled%22%3A%20false%2C%0A%20%20%20%20%22socket_mode_enabled%22%3A%20false%0A%20%20%7D%0A%7D%0A"><img alt="Add to Slack" height="40" width="139" src="https://platform.slack-edge.com/img/add_to_slack.png" srcSet="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x" /></a>
 
-Later in this installation guide you will be instructed to configure the webhook URL that Rails::Approvals needs to handle approval request responses.
+Later in this installation guide you will be instructed to configure the webhook URL that Rails::Approvals needs to handle approval request responses within Slack's settings.
 
 If you'd like to setup the Slack application manually you can do so following [Setup Slack Application](#setup-slack-application) guide below.
 
@@ -42,16 +44,16 @@ If you'd like to setup the Slack application manually you can do so following [S
 
 Rails::Approvals needs three things to work:
 
-1. The Slack Bot User OAuth Token generated after installing the Slack application to your workspace. This lets the gem publish messages to your configured Slack channel.
-1. The Webhook signing secret generated by Slack.
-1. The Slack channel you'd like to send approval requests to.
+1. The **Slack Bot User OAuth Token** generated after installing the Slack application to your workspace. This lets the gem publish messages to your configured Slack channel.
+1. The **Webhook signing secret** generated by Slack.
+1. The **Slack channel** you'd like to send approval requests to.
 
 Each of these can be configured by environment variables or manually in your environment file. We strongly do not recommend checking in any API tokens into version control and using environment variables to configure them.
 
 ```ruby
 Rails.application.configure do
   # Enabled by default in production. If you'd like to enable approvals in
-  # staging or other environments you can do so.
+  # staging or other environments you can do so here.
   config.rails.approvals.enabled = true
 
   # Can be configured with RAILS_APPROVALS_SLACK_CHANNEL by default, or provided
@@ -81,7 +83,7 @@ message to your configured application to permit or deny access accordingly.
 
 You will want to mount the `Rails::Approvals::Engine` within your `config/routes.rb` file:
 
-```
+```ruby
 Rails.application.routes.draw do
   mount Rails::Approvals::Engine => "/rails/approvals"
 
