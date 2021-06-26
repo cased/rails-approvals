@@ -41,6 +41,10 @@ module Rails
       end
     rescue TTY::Reader::InputInterrupt
       exit 0
+    rescue Slack::Web::Api::Errors::ChannelNotFound
+      channel = Rails.application.config.rails.approvals.slack.channel
+      puts "Rails::Approvals was configured to send approval requests to #{channel} in your Slack workspace but it either does not exist or the Slack workspace user needs to be invited to the room."
+      exit 1
     end
 
     def self.await
