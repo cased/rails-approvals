@@ -2,8 +2,8 @@ PATH
   remote: .
   specs:
     rails-approvals (0.1.0)
-      rails (~> 6.1.4)
-      slack-ruby-client (~> 0.15.0, >= 0.15.1)
+      rails (>= 6.0.0)
+      slack-ruby-client (>= 0.15.0)
       tty-prompt (~> 0.23.0)
 
 GEM

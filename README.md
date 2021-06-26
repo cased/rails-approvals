@@ -131,9 +131,11 @@ end
 
 An [`Rails::Approvals::Request`](https://github.com/cased/rails-approvals/blob/main/app/models/rails/approvals/request.rb) record is created which publishes the approval request to Slack and waits for someone to respond.
 
-When an approval response is ✅ _approved_, the console session continues as normal. When an approval response is 🛑 _denied_ or ⚠️ _times out_, the process will exit immediately.
+When an approval request is ✅ _approved_, the console session will continue as normal. When an approval response is 🛑 _denied_ or ⚠️ _times out_, the process will exit immediately.
 
 ## Setup Slack Application
+
+If you'd like to create your Slack application manually, you can do so by following the instructions below:
 
 1. Create a [new Slack application](https://api.slack.com/apps?new_app=1) for your desired Slack workspace.
 1. Next, under **Features**, select **OAuth & Permissions**.
