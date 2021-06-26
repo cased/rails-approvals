@@ -40,7 +40,7 @@ module Rails
       private
 
       def prompt_for_requester
-        return if requester? && !Rails.application.config.rails.requester.prompt
+        return if requester? && !Rails.application.config.rails.approvals.requester.prompt
 
         prompt = TTY::Prompt.new
         response = prompt.multiline("Who are you?", help: '(Press Ctrl+D or Ctrl+Z to submit)')
