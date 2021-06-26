@@ -142,7 +142,7 @@ GEM
       thor (~> 1.0)
     rake (13.0.3)
     ruby2_keywords (0.0.4)
-    slack-ruby-client (0.15.1)
+    slack-ruby-client (0.17.0)
       faraday (>= 1.0)
       faraday_middleware
       gli

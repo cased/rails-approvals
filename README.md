@@ -2,6 +2,8 @@
 
 Add approval processes for Rails console access, running database migrations, and more in production. Be notified of approval requests and respond to them directly in Slack.
 
+<img width="868" alt="CleanShot 2021-06-25 at 20 37 49@2x" src="https://user-images.githubusercontent.com/79995/123500785-5eda4a00-d5f5-11eb-9c39-5b704f62d2b5.png">
+
 ## Installation
 
 Rails::Approvals requires a Slack application installed in your Slack workspace. The Slack application gives Rails::Approvals the ability to post approval requests to your configured Slack channel and other workspace users can respond to approval requests.
